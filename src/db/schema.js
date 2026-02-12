@@ -1,5 +1,5 @@
-import { integer } from 'drizzle-orm/gel-core';
 import {
+  integer,
   jsonb,
   pgEnum,
   pgTable,
