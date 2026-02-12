@@ -1,5 +1,6 @@
 import { integer } from 'drizzle-orm/gel-core';
 import {
+  index,
   jsonb,
   pgEnum,
   pgTable,
@@ -42,4 +43,7 @@ export const commentary = pgTable('commentary', {
   metadata: jsonb('metadata'),
   tags: text('tags').array(),
   createdAt: timestamp('created_at').notNull().defaultNow()
-});
+}, (table) => ({
+  createdAtIdx: index('commentary_created_at_idx').on(table.createdAt),
+  matchIdCreatedAtIdx: index('commentary_match_id_created_at_idx').on(table.matchId, table.createdAt)
+}));
