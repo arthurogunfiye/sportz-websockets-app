@@ -1,6 +1,6 @@
-import { integer } from 'drizzle-orm/gel-core';
 import {
   index,
+  integer,
   jsonb,
   pgEnum,
   pgTable,
