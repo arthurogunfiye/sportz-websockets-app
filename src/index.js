@@ -11,12 +11,11 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(express.json());
+app.use(securityMiddleware());
 
 app.get('/', (req, res) => {
   res.send('Hello from Express server!');
 });
-
-app.use(securityMiddleware());
 
 app.use('/matches', matchRouter);
 

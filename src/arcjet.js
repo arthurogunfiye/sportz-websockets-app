@@ -46,18 +46,18 @@ export function securityMiddleware() {
     if (!httpArcjet) return next();
 
     try {
-      const decision = httpArcjet.protect(req);
+      const decision = await httpArcjet.protect(req);
 
       if (decision.isDenied()) {
         if (decision.reason.isRateLimit()) {
           res.writeHead(429, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Too Many Requests' }));
+          return res.end(JSON.stringify({ error: 'Too Many Requests' }));
         } else if (decision.reason.isBot()) {
           res.writeHead(403, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'No bots allowed' }));
+          return res.end(JSON.stringify({ error: 'No bots allowed' }));
         } else {
           res.writeHead(403, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Forbidden' }));
+          return res.end(JSON.stringify({ error: 'Forbidden' }));
         }
       }
     } catch (error) {
