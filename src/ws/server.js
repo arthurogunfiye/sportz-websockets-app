@@ -22,7 +22,7 @@ export function attachWebSocketServer(server) {
     maxPayload: 1024 * 1024 // 1MB
   });
 
-  server.on('upgrade', async (req, res, head) => {
+  server.on('upgrade', async (req, socket, head) => {
     const { pathname } = new URL(req.url, `http://${req.headers.host}`);
 
     if (pathname !== '/ws') {
@@ -55,7 +55,7 @@ export function attachWebSocketServer(server) {
     });
   });
 
-  wss.on('connection', async (socket, req) => {
+  wss.on('connection', (socket, req) => {
     socket.isAlive = true;
     socket.on('pong', () => {
       socket.isAlive = true;
