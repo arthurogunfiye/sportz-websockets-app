@@ -28,8 +28,7 @@ commentaryRouter.get('/', async (req, res) => {
     });
   }
 
-  const MAX_LIMIT = 100;
-  const limit = Math.min(queryResult.data.limit ?? MAX_LIMIT, MAX_LIMIT);
+  const limit = queryResult.data.limit ?? 100;
 
   try {
     const results = await db
