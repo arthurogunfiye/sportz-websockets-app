@@ -65,28 +65,45 @@ commentaryRouter.post('/', async (req, res) => {
   }
 
   try {
-    const [matchExists] = await db
-      .select()
-      .from(matches)
-      .where(eq(matches.id, paramsResult.data.id))
-      .limit(1);
+    // Wrap in transaction with explicit lock to prevent race condition
+    const result = await db.transaction(async txn => {
+      // Lock match row for the duration of transaction to prevent concurrent deletion
+      const [matchExists] = await txn
+        .select()
+        .from(matches)
+        .where(eq(matches.id, paramsResult.data.id))
+        .for('update')
+        .limit(1);
 
-    if (!matchExists) {
-      return res.status(404).json({ error: 'Match not found' });
-    }
+      if (!matchExists) {
+        throw new Error('MATCH_NOT_FOUND');
+      }
 
-    const { minute, ...rest } = bodyResult.data;
-    const [result] = await db
-      .insert(commentary)
-      .values({
-        matchId: paramsResult.data.id,
-        minute,
-        ...rest
-      })
-      .returning();
+      const { minute, ...rest } = bodyResult.data;
+      const [createdCommentary] = await txn
+        .insert(commentary)
+        .values({
+          matchId: paramsResult.data.id,
+          minute,
+          ...rest
+        })
+        .returning();
+
+      return createdCommentary;
+    });
 
     res.status(201).json({ data: result });
   } catch (error) {
+    // Handle match not found (custom error from transaction)
+    if (error.message === 'MATCH_NOT_FOUND') {
+      return res.status(404).json({ error: 'Match not found' });
+    }
+
+    // Handle foreign key constraint violations (edge case fallback)
+    if (error.code === '23503') {
+      return res.status(404).json({ error: 'Match not found' });
+    }
+
     console.error('Failed to create commentary: ', error);
     res.status(500).json({ error: 'Failed to create commentary' });
   }
