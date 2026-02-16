@@ -9,13 +9,10 @@ if (!process.env.DATABASE_URL) {
 
 export const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
-  max: process.env.PGPOOL_MAX ? parseInt(process.env.PGPOOL_MAX, 10) : 10,
-  idleTimeoutMillis: process.env.PGPOOL_IDLE_TIMEOUT_MS
-    ? parseInt(process.env.PGPOOL_IDLE_TIMEOUT_MS, 10)
-    : 30000,
-  connectionTimeoutMillis: process.env.PGPOOL_CONNECTION_TIMEOUT_MS
-    ? parseInt(process.env.PGPOOL_CONNECTION_TIMEOUT_MS, 10)
-    : 5000
+  max: parseInt(process.env.PGPOOL_MAX, 10) || 10,
+  idleTimeoutMillis: parseInt(process.env.PGPOOL_IDLE_TIMEOUT_MS, 10) || 30000,
+  connectionTimeoutMillis:
+    parseInt(process.env.PGPOOL_CONNECTION_TIMEOUT_MS, 10) || 5000
 });
 
 export const db = drizzle(pool, { schema });
