@@ -88,13 +88,12 @@ commentaryRouter.post('/', async (req, res) => {
         })
         .returning();
 
-      if (res.app.locals.broadcastCommentary) {
-        res.app.locals.broadcastCommentary(
-          createdCommentary.matchId,
-          createdCommentary
-        );
-      }
+      return createdCommentary;
     });
+
+    if (res.app.locals.broadcastCommentary && result) {
+      res.app.locals.broadcastCommentary(result.matchId, result);
+    }
 
     res.status(201).json({ data: result });
   } catch (error) {
