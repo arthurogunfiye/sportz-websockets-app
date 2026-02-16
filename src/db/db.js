@@ -21,12 +21,9 @@ const readInt = (envVar, defaultValue) => {
 
 export const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
-  max: readInt(process.env.PGPOOL_MAX, 10),
-  idleTimeoutMillis: readInt(process.env.PGPOOL_IDLE_TIMEOUT_MS, 30000),
-  connectionTimeoutMillis: readInt(
-    process.env.PGPOOL_CONNECTION_TIMEOUT_MS,
-    5000
-  )
+  max: readInt(PGPOOL_MAX, 10),
+  idleTimeoutMillis: readInt(PGPOOL_IDLE_TIMEOUT_MS, 30000),
+  connectionTimeoutMillis: readInt(PGPOOL_CONNECTION_TIMEOUT_MS, 5000)
 });
 
-export const db = drizzle(pool, { schema });
+export const db = drizzle({ client: pool, schema });
