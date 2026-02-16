@@ -1,5 +1,5 @@
-import { Router } from 'express';
 import { desc, eq } from 'drizzle-orm';
+import { Router } from 'express';
 import { db } from '../db/db.js';
 import { commentary, matches } from '../db/schema.js';
 import {
@@ -66,7 +66,6 @@ commentaryRouter.post('/', async (req, res) => {
   try {
     // Wrap in transaction with explicit lock to prevent race condition
     const result = await db.transaction(async txn => {
-      // Lock match row for the duration of transaction to prevent concurrent deletion
       const [matchExists] = await txn
         .select()
         .from(matches)
@@ -79,6 +78,7 @@ commentaryRouter.post('/', async (req, res) => {
       }
 
       const { minute, ...rest } = bodyResult.data;
+
       const [createdCommentary] = await txn
         .insert(commentary)
         .values({
@@ -90,6 +90,10 @@ commentaryRouter.post('/', async (req, res) => {
 
       return createdCommentary;
     });
+
+    if (res.app.locals.broadcastCommentary && result) {
+      res.app.locals.broadcastCommentary(result.matchId, result);
+    }
 
     res.status(201).json({ data: result });
   } catch (error) {

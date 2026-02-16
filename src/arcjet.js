@@ -12,7 +12,12 @@ export const httpArcjet = arcjetKey
         shield({ mode: arcjetMode }),
         detectBot({
           mode: arcjetMode,
-          allow: ['CATEGORY:SEARCH_ENGINE', 'CATEGORY:PREVIEW', 'POSTMAN']
+          allow: [
+            'CATEGORY:SEARCH_ENGINE',
+            'CATEGORY:PREVIEW',
+            'POSTMAN',
+            'CURL'
+          ]
         }),
         slidingWindow({
           mode: arcjetMode,
